@@ -1,0 +1,61 @@
+# ------------------------------------
+# Dependencies (Bağımlılıklar)
+# ------------------------------------
+node_modules/
+.pnp
+.pnp.js
+
+# ------------------------------------
+# Production / Build Output (Derleme Çıktıları)
+# ------------------------------------
+dist/
+dist-ssr/
+build/
+*.tsbuildinfo
+
+# ------------------------------------
+# Local Env Files (Gizli Anahtarlar)
+# ------------------------------------
+# API anahtarlarını buraya koyacağın için asla git'e yollama
+.env
+.env.local
+.env.*.local
+
+# ------------------------------------
+# Testing & Logs (Loglar ve Testler)
+# ------------------------------------
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------
+# macOS System Files (Gereksiz Mac Dosyaları)
+# ------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ------------------------------------
+# Linux System Files (Gereksiz Linux Dosyaları)
+# ------------------------------------
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ------------------------------------
+# Editor / IDE Files (Editör Ayarları)
+# ------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
