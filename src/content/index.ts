@@ -1,20 +1,54 @@
-console.log("Content script sayfaya enjekte edildi!");
+// Script her çalıştığında önce nerede olduğunu anlayalım
+console.log("Script çalıştı. Bulunduğu URL:", window.location.href);
 
-// Sayfadaki video elementini bulma denemesi
-const video = document.querySelector("video");
-if (video) {
-  console.log("Video bulundu:", video.currentSrc);
+function videoKontrolVeEkle() {
+  // Background'dan gelen mesajları dinle
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.mesaj === "ALTYAZI_BULUNDU") {
+      console.log("Content Script Mesajı Aldı! URL:", request.url);
+      console.log("Şu anki Konum (URL):", window.location.href);
 
-  // Test amaçlı videonun üzerine kırmızı bir kutu ekleyelim
-  const testBox = document.createElement("div");
-  testBox.style.position = "absolute";
-  testBox.style.top = "100px";
-  testBox.style.left = "100px";
-  testBox.style.zIndex = "9999";
-  testBox.style.background = "red";
-  testBox.style.color = "white";
-  testBox.style.padding = "10px";
-  testBox.innerText = "AI Çeviri Hazır!";
+      // Kutu var mı kontrol et
+      let kutu = document.getElementById("ai-altyazi-kutusu");
 
-  document.body.appendChild(testBox);
+      if (!kutu) {
+        console.log("Kutu yok, yeni oluşturuluyor...");
+        kutu = document.createElement("div");
+        kutu.id = "ai-altyazi-kutusu";
+        kutu.style.position = "fixed";
+        kutu.style.top = "10%"; // Üstten biraz boşluk
+        kutu.style.left = "50%"; // Ortala
+        kutu.style.transform = "translateX(-50%)"; // Tam ortalamak için
+        kutu.style.backgroundColor = "rgba(0, 0, 0, 0.9)"; // Koyu siyah
+        kutu.style.color = "#00ff00"; // Parlak yeşil
+        kutu.style.padding = "20px";
+        kutu.style.fontSize = "18px";
+        kutu.style.fontWeight = "bold";
+        kutu.style.zIndex = "2147483647"; // CSS'in izin verdiği EN BÜYÜK sayı
+        kutu.style.border = "3px solid white";
+        kutu.style.borderRadius = "10px";
+        kutu.style.boxShadow = "0 0 20px rgba(0,255,0,0.5)";
+        kutu.style.maxWidth = "80%";
+
+        // Kutuyu en güvenli yere ekle (documentElement bazen body'den daha güvenlidir)
+        (document.body || document.documentElement).appendChild(kutu);
+      } else {
+        console.log("Kutu zaten var, içeriği güncelleniyor.");
+      }
+
+      kutu.innerText = "ALTYAZI YAKALANDI!";
+
+      // 5 saniye sonra kutuyu otomatik gizle (İstersen bu satırı sil)
+      setTimeout(() => {
+        kutu!.style.display = "none";
+      }, 8000);
+    }
+  });
 }
+
+// Sayfa yüklendiğinde çalıştır
+videoKontrolVeEkle();
+
+// Bazı siteler videoyu sonradan yükler (dinamik), o yüzden 2 sn sonra tekrar dene
+setTimeout(videoKontrolVeEkle, 2000);
+setTimeout(videoKontrolVeEkle, 5000);
