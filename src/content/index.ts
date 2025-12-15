@@ -1,54 +1,75 @@
-// Script her çalıştığında önce nerede olduğunu anlayalım
-console.log("Script çalıştı. Bulunduğu URL:", window.location.href);
+console.log("Content Script Hazır - Dual Subtitle Modu");
 
-function videoKontrolVeEkle() {
-  // Background'dan gelen mesajları dinle
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.mesaj === "ALTYAZI_BULUNDU") {
-      console.log("Content Script Mesajı Aldı! URL:", request.url);
-      console.log("Şu anki Konum (URL):", window.location.href);
+// Kutu oluşturma fonksiyonu (Daha küçük ve şık)
+function getOrCreateKutu(): HTMLDivElement {
+  let kutu = document.getElementById("ai-altyazi-kutusu") as HTMLDivElement;
 
-      // Kutu var mı kontrol et
-      let kutu = document.getElementById("ai-altyazi-kutusu");
+  if (!kutu) {
+    kutu = document.createElement("div");
+    kutu.id = "ai-altyazi-kutusu";
 
-      if (!kutu) {
-        console.log("Kutu yok, yeni oluşturuluyor...");
-        kutu = document.createElement("div");
-        kutu.id = "ai-altyazi-kutusu";
-        kutu.style.position = "fixed";
-        kutu.style.top = "10%"; // Üstten biraz boşluk
-        kutu.style.left = "50%"; // Ortala
-        kutu.style.transform = "translateX(-50%)"; // Tam ortalamak için
-        kutu.style.backgroundColor = "rgba(0, 0, 0, 0.9)"; // Koyu siyah
-        kutu.style.color = "#00ff00"; // Parlak yeşil
-        kutu.style.padding = "20px";
-        kutu.style.fontSize = "18px";
-        kutu.style.fontWeight = "bold";
-        kutu.style.zIndex = "2147483647"; // CSS'in izin verdiği EN BÜYÜK sayı
-        kutu.style.border = "3px solid white";
-        kutu.style.borderRadius = "10px";
-        kutu.style.boxShadow = "0 0 20px rgba(0,255,0,0.5)";
-        kutu.style.maxWidth = "80%";
+    Object.assign(kutu.style, {
+      position: "fixed",
+      bottom: "100px", // Alttaki Türkçe altyazının biraz üstünde dursun
+      left: "50%",
+      transform: "translateX(-50%)",
+      backgroundColor: "rgba(0, 0, 0, 0.6)", // Daha şeffaf
+      color: "#ffffff", // Beyaz yazı
+      textShadow: "1px 1px 2px black",
+      padding: "10px 20px",
+      fontSize: "20px", // Okunaklı
+      fontWeight: "bold",
+      zIndex: "2147483647",
+      borderRadius: "5px",
+      pointerEvents: "none", // Tıklamayı engellemesin
+      textAlign: "center",
+      display: "none",
+      width: "80%",
+    });
 
-        // Kutuyu en güvenli yere ekle (documentElement bazen body'den daha güvenlidir)
-        (document.body || document.documentElement).appendChild(kutu);
-      } else {
-        console.log("Kutu zaten var, içeriği güncelleniyor.");
-      }
-
-      kutu.innerText = "ALTYAZI YAKALANDI!";
-
-      // 5 saniye sonra kutuyu otomatik gizle (İstersen bu satırı sil)
-      setTimeout(() => {
-        kutu!.style.display = "none";
-      }, 8000);
-    }
-  });
+    (document.body || document.documentElement).appendChild(kutu);
+  }
+  return kutu;
 }
 
-// Sayfa yüklendiğinde çalıştır
-videoKontrolVeEkle();
+// VTT metnini o anki saniyeye göre ayıklayan yardımcı fonksiyonlara ihtiyacımız olacak.
+// Ama şimdilik basitçe tüm metni basmak yerine, mantığı kuralım.
+// GERÇEK SENKRONİZASYON İÇİN: VTT parser gerekir.
+// Şimdilik "İndirildi" mesajını görelim.
 
-// Bazı siteler videoyu sonradan yükler (dinamik), o yüzden 2 sn sonra tekrar dene
-setTimeout(videoKontrolVeEkle, 2000);
-setTimeout(videoKontrolVeEkle, 5000);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (window !== window.top) return; // Sadece ana sayfada çalış
+
+  const kutu = getOrCreateKutu();
+
+  if (request.mesaj === "ALTYAZI_BULUNDU") {
+    kutu.style.display = "block";
+    kutu.innerText = "İngilizce Altyazı Bulundu!\nYükleniyor...";
+    kutu.style.color = "yellow";
+  }
+
+  if (request.mesaj === "ICERIK_HAZIR") {
+    kutu.style.display = "block";
+    kutu.style.color = "white";
+
+    // BURASI ÖNEMLİ:
+    // Normalde burada tüm dosyayı ekrana basamayız (çok uzun).
+    // Videonun saniyesini dinleyip ona uygun satırı göstermemiz lazım.
+    // Şimdilik sadece çalıştığını kanıtlamak için ilk 200 karakteri gösterelim.
+
+    kutu.innerText =
+      "Çift Altyazı Hazır!\n(Senkronizasyon modülü eklenecek)\n\n" +
+      request.veri.substring(0, 100) +
+      "...";
+
+    // Bu veriyi hafızaya alıp videonun timeupdate event'inde kullanacağız.
+    window.engSubtitleData = request.veri;
+  }
+});
+
+// TypeScript için window objesine yeni özellik ekleme (Geçici çözüm)
+declare global {
+  interface Window {
+    engSubtitleData: string;
+  }
+}
