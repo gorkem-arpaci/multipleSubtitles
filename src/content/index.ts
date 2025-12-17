@@ -1,6 +1,12 @@
-import { parseVTT, SubtitleItem } from "../utils/vtt-parser";
+import { parseVTT } from "../utils/vtt-parser";
 
 console.log("🔥 Content Script Başladı - Video Avcısı Modu");
+
+interface SubtitleItem {
+  start: number;
+  end: number;
+  text: string;
+}
 
 let activeSubtitles: SubtitleItem[] = [];
 let videoElement: HTMLVideoElement | null = null;
@@ -13,12 +19,11 @@ function createKutu(): HTMLDivElement {
 
   Object.assign(kutu.style, {
     position: "fixed", // DÜZELTME 1: Absolute yerine Fixed (Ekrana yapışsın)
-    bottom: "100px", // Alttan biraz daha yukarı
+    top: "10px",
     left: "50%",
     transform: "translateX(-50%)",
 
-    backgroundColor: "rgba(0, 0, 0, 0.8)", // Yarı saydam siyah
-    color: "#00ff00", // Yeşil yazı (Dikkat çeksin)
+    color: "white", // Yeşil yazı (Dikkat çeksin)
     padding: "10px 20px",
     fontSize: "24px",
     fontWeight: "bold",
@@ -27,12 +32,11 @@ function createKutu(): HTMLDivElement {
     zIndex: "2147483647", // En üst katman
     borderRadius: "8px",
     textAlign: "center",
-    border: "3px solid red", // DÜZELTME 2: Görünsün diye Kırmızı Çerçeve
     textShadow: "2px 2px 2px black",
     pointerEvents: "none", // Tıklamaları videoya geçir
 
-    display: "block", // Başlangıçta görünür olsun (Test için)
-    maxWidth: "80%",
+    display: "block",
+    maxWidth: "100%",
     width: "fit-content",
   });
 
@@ -48,9 +52,6 @@ function videoAvcisi() {
   if (video && !videoElement) {
     console.log("✅ VİDEO BULUNDU! Kutu enjekte ediliyor...");
     videoElement = video;
-
-    // Videonun kendisine mavi çerçeve çiz (Videoyu doğru bulduk mu görelim)
-    video.style.border = "5px solid blue";
 
     // Kutuyu oluştur
     kutuElement = createKutu();

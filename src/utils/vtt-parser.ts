@@ -1,5 +1,5 @@
 // Bir altyazı bloğunun yapısı
-export interface SubtitleItem {
+interface SubtitleItem {
   start: number; // Başlangıç saniyesi (Örn: 5.5)
   end: number; // Bitiş saniyesi (Örn: 8.2)
   text: string; // Ekranda görünecek yazı
