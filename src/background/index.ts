@@ -10,15 +10,16 @@ let ingilizceBulundu = false;
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     const hamUrl = details.url;
+    const tabId = details.tabId;
+
+    // Tab ID geçersizse çık
+    if (tabId === -1) return;
 
     // 1. ADIM: URL Temizliği (Parametreleri at)
     const safUrl = hamUrl.split("?")[0];
     const lowerUrl = safUrl.toLowerCase();
 
-    // 2. ADIM: ÖLÜMCÜL KONTROL (SPAM ENGELİ)
-    // Eğer listede varsa, kod burda biter. Aşağıya İNEMEZ.
     if (islenenDosyalar.has(safUrl)) {
-      // console.log("Engellendi (Spam):", safUrl);
       return;
     }
 
@@ -32,7 +33,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 
     // Listeye ekle (Kapıyı kilitle)
     islenenDosyalar.add(safUrl);
-    console.log("İLK KEZ İŞLENİYOR:", safUrl);
+    console.log("İLK KEZ İŞLENİYOR:", safUrl, "Tab:", tabId);
 
     // SENARYO 1: Orijinal İngilizce
     if (
@@ -41,10 +42,10 @@ chrome.webRequest.onBeforeRequest.addListener(
       lowerUrl.includes("english")
     ) {
       console.log("ORİJİNAL İNGİLİZCE BULUNDU. Diğer işlemler durduruluyor.");
-
       ingilizceBulundu = true;
 
       mesajGonder(
+        tabId,
         "ALTYAZI_BULUNDU",
         "Orijinal İngilizce bulundu (AI İptal)...",
       );
@@ -52,10 +53,9 @@ chrome.webRequest.onBeforeRequest.addListener(
       fetch(hamUrl)
         .then((res) => res.text())
         .then((metin) => {
-          mesajGonder("ICERIK_HAZIR", metin);
+          mesajGonder(tabId, "ICERIK_HAZIR", metin);
         })
         .catch((e) => console.error("İndirme hatası:", e));
-
       return;
     }
 
@@ -67,6 +67,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       console.log("Sadece Türkçe var, AI devreye giriyor...");
 
       mesajGonder(
+        tabId,
         "ALTYAZI_BULUNDU",
         "Türkçe -> İngilizce çevirisi yapılıyor...",
       );
@@ -83,13 +84,13 @@ chrome.webRequest.onBeforeRequest.addListener(
           try {
             // AI Fonksiyonunu Çağır
             const cevrilmisMetin = await tranlateSubtitle(metin);
-
             if (!ingilizceBulundu) {
-              mesajGonder("ICERIK_HAZIR", cevrilmisMetin);
+              mesajGonder(tabId, "ICERIK_HAZIR", cevrilmisMetin); // ⭐ DÜZELTME
             }
           } catch (error) {
             console.error("AI Çeviri Hatası (CSP olabilir):", error);
             mesajGonder(
+              tabId,
               "ALTYAZI_BULUNDU",
               "HATA: Yapay zeka güvenlik engeline takıldı.",
             );
@@ -97,16 +98,16 @@ chrome.webRequest.onBeforeRequest.addListener(
         });
     }
   },
-  // SIKI FİLTRE
   { urls: ["*://*/*.vtt*", "*://*/*.srt*"] },
 );
 
-function mesajGonder(mesajTipi: string, veri: string) {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (tabs[0]?.id) {
-      chrome.tabs
-        .sendMessage(tabs[0].id, { mesaj: mesajTipi, veri: veri })
-        .catch(() => {});
-    }
-  });
+function mesajGonder(tabId: number, mesajTipi: string, veri: string) {
+  chrome.tabs
+    .sendMessage(tabId, { mesaj: mesajTipi, veri: veri })
+    .then(() => {
+      console.log(`✅ Mesaj gönderildi (Tab ${tabId}):`, mesajTipi);
+    })
+    .catch((err) => {
+      console.error(`❌ Mesaj gönderilemedi (Tab ${tabId}):`, err);
+    });
 }
