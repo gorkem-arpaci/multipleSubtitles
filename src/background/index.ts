@@ -1,5 +1,4 @@
 import { tranlateSubtitle } from "../utils/ai-ceviri";
-import { parseVTT } from "../utils/vtt-parser";
 
 console.log("Background: Akıllı Mod (WASM İzinli & Spam Korumalı)");
 
@@ -8,7 +7,7 @@ const islenenDosyalar = new Set<string>();
 let ingilizceBulundu = false;
 
 chrome.webRequest.onBeforeRequest.addListener(
-  (details) => {
+  (details: any): undefined => {
     const hamUrl = details.url;
     const tabId = details.tabId;
 
@@ -55,7 +54,7 @@ chrome.webRequest.onBeforeRequest.addListener(
         .then((metin) => {
           mesajGonder(tabId, "ICERIK_HAZIR", metin);
         })
-        .catch((e) => console.error("İndirme hatası:", e));
+        .catch((e: any) => console.error("İndirme hatası:", e));
       return;
     }
 
@@ -107,7 +106,7 @@ function mesajGonder(tabId: number, mesajTipi: string, veri: string) {
     .then(() => {
       console.log(`✅ Mesaj gönderildi (Tab ${tabId}):`, mesajTipi);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       console.error(`❌ Mesaj gönderilemedi (Tab ${tabId}):`, err);
     });
 }

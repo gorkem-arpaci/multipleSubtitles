@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Altyazı Çevirici",
+  "name": "Multiple Subtitles",
   "version": "1.0.0",
   "permissions": ["activeTab", "scripting", "storage", "webRequest"],
   "host_permissions": ["<all_urls>"],

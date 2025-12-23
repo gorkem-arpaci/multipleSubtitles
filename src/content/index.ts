@@ -23,7 +23,7 @@ async function altyazilariYukle() {
     ]);
 
     if (result.cachedSubtitles && result.currentUrl === window.location.href) {
-      activeSubtitles = result.cachedSubtitles;
+      activeSubtitles = result.cachedSubtitles as SubtitleItem[];
       altyaziYuklendi = true;
       console.log(`🔄 ${activeSubtitles.length} satır cache'den yüklendi!`);
 
@@ -123,7 +123,7 @@ function zamanlayici() {
 }
 
 // 4. Mesaj Dinleyicisi
-chrome.runtime.onMessage.addListener((request) => {
+chrome.runtime.onMessage.addListener((request: any) => {
   console.log("📨 Mesaj alındı:", request.mesaj);
 
   if (request.mesaj === "ALTYAZI_BULUNDU") {
@@ -146,9 +146,6 @@ chrome.runtime.onMessage.addListener((request) => {
 
       // İlk 3 altyazıyı göster
       if (activeSubtitles.length > 0) {
-        console.log("🎬 İlk altyazı:", activeSubtitles[0]);
-        console.log("🎬 İkinci altyazı:", activeSubtitles[1]);
-        console.log("🎬 Üçüncü altyazı:", activeSubtitles[2]);
       }
 
       // ✅ YENİ: Cache'e kaydet
