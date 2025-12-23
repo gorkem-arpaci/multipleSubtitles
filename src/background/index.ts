@@ -11,7 +11,6 @@ chrome.webRequest.onBeforeRequest.addListener(
     const hamUrl = details.url;
     const tabId = details.tabId;
 
-    // Tab ID geçersizse çık
     if (tabId === -1) return;
 
     // 1. ADIM: URL Temizliği (Parametreleri at)
@@ -84,7 +83,7 @@ chrome.webRequest.onBeforeRequest.addListener(
             // AI Fonksiyonunu Çağır
             const cevrilmisMetin = await tranlateSubtitle(metin);
             if (!ingilizceBulundu) {
-              mesajGonder(tabId, "ICERIK_HAZIR", cevrilmisMetin); // ⭐ DÜZELTME
+              mesajGonder(tabId, "ICERIK_HAZIR", cevrilmisMetin);
             }
           } catch (error) {
             console.error("AI Çeviri Hatası (CSP olabilir):", error);
@@ -104,9 +103,9 @@ function mesajGonder(tabId: number, mesajTipi: string, veri: string) {
   chrome.tabs
     .sendMessage(tabId, { mesaj: mesajTipi, veri: veri })
     .then(() => {
-      console.log(`✅ Mesaj gönderildi (Tab ${tabId}):`, mesajTipi);
+      console.log(`Mesaj gönderildi (Tab ${tabId}):`, mesajTipi);
     })
     .catch((err: any) => {
-      console.error(`❌ Mesaj gönderilemedi (Tab ${tabId}):`, err);
+      console.error(`Mesaj gönderilemedi (Tab ${tabId}):`, err);
     });
 }

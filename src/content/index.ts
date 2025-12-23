@@ -1,6 +1,6 @@
 import { parseVTT } from "../utils/vtt-parser";
 
-console.log("🔥 Content Script Başladı - Video Avcısı Modu");
+console.log("Content Script Başladı");
 
 interface SubtitleItem {
   start: number;
@@ -12,9 +12,8 @@ let activeSubtitles: SubtitleItem[] = [];
 let videoElement: HTMLVideoElement | null = null;
 let kutuElement: HTMLDivElement | null = null;
 let kutuEnjekteEdildi = false;
-let altyaziYuklendi = false; // ✅ YENİ: Altyazı yüklenme durumu
+let altyaziYuklendi = false;
 
-// ✅ YENİ: Sayfa yenilendiğinde altyazıları geri yükle
 async function altyazilariYukle() {
   try {
     const result = await chrome.storage.local.get([
@@ -25,7 +24,7 @@ async function altyazilariYukle() {
     if (result.cachedSubtitles && result.currentUrl === window.location.href) {
       activeSubtitles = result.cachedSubtitles as SubtitleItem[];
       altyaziYuklendi = true;
-      console.log(`🔄 ${activeSubtitles.length} satır cache'den yüklendi!`);
+      console.log(`${activeSubtitles.length} satır cache'den yüklendi!`);
 
       if (kutuElement) {
         kutuElement.innerText = "✅ ALTYAZI HAZIR!";
@@ -36,7 +35,7 @@ async function altyazilariYukle() {
       }
     }
   } catch (e) {
-    console.log("ℹ️ Cache bulunamadı, yeni altyazı beklenecek");
+    console.log("Cache bulunamadı, yeni altyazı beklenecek");
   }
 }
 
@@ -74,7 +73,7 @@ async function videoAvcisi() {
   const video = document.querySelector("video");
 
   if (video && !videoElement) {
-    console.log("✅ VİDEO BULUNDU! Kutu enjekte ediliyor...");
+    console.log("VİDEO BULUNDU! Kutu enjekte ediliyor...");
     videoElement = video;
     kutuElement = createKutu();
 
@@ -87,10 +86,8 @@ async function videoAvcisi() {
     video.addEventListener("timeupdate", zamanlayici);
     kutuEnjekteEdildi = true;
 
-    // ✅ Cache'den altyazı yükle
     await altyazilariYukle();
 
-    // Eğer cache yoksa bekleme mesajı göster
     if (!altyaziYuklendi) {
       kutuElement.innerText = "⏳ AI ALTYAZI BEKLENİYOR...";
       kutuElement.style.display = "block";
@@ -124,38 +121,30 @@ function zamanlayici() {
 
 // 4. Mesaj Dinleyicisi
 chrome.runtime.onMessage.addListener((request: any) => {
-  console.log("📨 Mesaj alındı:", request.mesaj);
-
   if (request.mesaj === "ALTYAZI_BULUNDU") {
     if (kutuElement) {
       kutuElement.style.display = "block";
-      kutuElement.innerText = "📥 İNDİRİLİYOR...\n" + request.veri;
+      kutuElement.innerText = "İNDİRİLİYOR...\n" + request.veri;
       kutuElement.style.color = "yellow";
     }
   }
 
   if (request.mesaj === "ICERIK_HAZIR") {
-    console.log("📦 Altyazı İçeriği Geldi! Parse ediliyor...");
-    console.log("🔍 İçerik uzunluğu:", request.veri.length);
-
     try {
       activeSubtitles = parseVTT(request.veri);
       altyaziYuklendi = true;
-
-      console.log(`✅ ${activeSubtitles.length} satır yüklendi.`);
 
       // İlk 3 altyazıyı göster
       if (activeSubtitles.length > 0) {
       }
 
-      // ✅ YENİ: Cache'e kaydet
       chrome.storage.local
         .set({
           cachedSubtitles: activeSubtitles,
           currentUrl: window.location.href,
         })
         .then(() => {
-          console.log("💾 Altyazılar cache'e kaydedildi!");
+          console.log("Altyazılar cache'e kaydedildi!");
         });
 
       if (kutuElement) {
@@ -179,7 +168,6 @@ chrome.runtime.onMessage.addListener((request: any) => {
 // 5. Avcıyı Başlat
 setInterval(videoAvcisi, 1000);
 
-// ✅ YENİ: Sayfa kapatılınca cache'i temizle (opsiyonel)
 window.addEventListener("beforeunload", () => {
   // İsterseniz burada cache'i temizleyebilirsiniz
   // chrome.storage.local.remove(['cachedSubtitles', 'currentUrl']);

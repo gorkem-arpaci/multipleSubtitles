@@ -20,23 +20,18 @@ async function getTranslator() {
   return translatorInstance;
 }
 
-// VTT dosyasını parçalara ayırıyor
 function parseVTT(vttText: string) {
-  // VTT dosyaları genellikle boş satırlarla bloklara ayrılır.
   return vttText
     .split(/\n\s*\n/)
     .map((block) => {
-      // Blok içindeki satırları ayır
       const lines = block.split("\n");
 
-      // Zaman damgasını bul (Örn: 00:00:05.000 --> 00:00:08.000)
       const timeLineIndex = lines.findIndex((line) => line.includes("-->"));
 
-      // Eğer zaman damgası yoksa veya başlık kısmındaysak (WEBVTT yazısı gibi) bu bloğu atla
       if (timeLineIndex === -1) return null;
 
       const time = lines[timeLineIndex];
-      // Zaman damgasından sonraki her şey metindir
+
       const text = lines.slice(timeLineIndex + 1).join(" ");
 
       return { original: block, time, text };
