@@ -1,73 +1,44 @@
-# React + TypeScript + Vite
+# 🎬 Multiple Subtitles 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6)
+![Manifest](https://img.shields.io/badge/Manifest-V3-orange)
 
-Currently, two official plugins are available:
+A high-performance Chrome Extension that intelligently manages video subtitles. **It prioritizes existing secondary subtitles; if none are available, it automatically translates the primary subtitle using AI.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Key Features
 
-## React Compiler
+* **🧠 Smart Hybrid Logic:** Checks if a second subtitle track exists. If yes, it uses it directly. If not, it falls back to AI translation.
+* **🔍 Auto Detection:** Automatically finds `<video>` elements (JWPlayer, HTML5) and attaches listeners.
+* **🤖 AI Translation:** Intercepts `.vtt` files and translates them instantly when needed.
+* **💾 Smart Caching:** Caches translations to `chrome.storage` to save API credits and load instantly on replay.
+* **🛡️ Safe Injection:** Renders subtitles into `document.body` to prevent player crashes.
+* **⚡ Zero Idle CPU:** Scripts completely detach when the extension is disabled.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+* **React 18 & TypeScript**
+* **Vite & CRXJS**
+* **Chrome Manifest V3**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 How to Install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 1. Build the Project
+Run the following commands to generate the extension files:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone [https://github.com/your-username/ai-subtitle-extension.git](https://github.com/your-username/ai-subtitle-extension.git)
+cd ai-subtitle-extension
+npm install
+npm run build
 ```
+### 2. Load into Chrome 
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+ 1. Go to `chrome://extensions`.
+ 2. Enable **Developer Mode** (top right)
+ 3. Click **Load unpacked**.
+ 4. Select the `dist` folder created in your project directory.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📝 License
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Distributed under the MIT License.
