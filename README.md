@@ -27,8 +27,8 @@ A high-performance Chrome Extension that intelligently manages video subtitles. 
 Run the following commands to generate the extension files:
 
 ```bash
-git clone [https://github.com/gorkem-arpaci/multipleSubtitles.git](https://github.com/gorkem-arpaci/multipleSubtitles.git)
-cd ai-subtitle-extension
+git clone https://github.com/gorkem-arpaci/multipleSubtitles.git
+cd multipleSubtitles
 npm install
 npm run build
 ```
